@@ -1,0 +1,127 @@
+services:
+  postgres:
+    image: postgres:13
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 30s
+      retries: 5
+      start_period: 5s
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    # volumes:
+    #   -postgres-db-volume:/var/lib/postgreql/data
+    ports:
+      - 5432:5432
+  
+  redis:
+    image: redis:latest
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 25
+      start_period: 30s
+    ports:
+      - '127.0.0.1:6379:6379/tcp'
+    restart: always
+
+  airflow_webserver:
+    build: airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # env_file:
+    #   - airflow/dev.env
+    volumes:
+      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "/opt/airflow/airflow_venv/bin/airflow db init &&
+             export PYTHONPATH=${PYTHONPATH}:/opt/airflow/config
+             mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins /opt/airflow/config /opt/airflow/dags &&
+             /opt/airflow/airflow_venv/bin/airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email jwsmith2340@yahoo.com &&
+             /opt/airflow/airflow_venv/bin/airflow webserver"
+  
+  airflow_scheduler:
+    build: airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # env_file:
+    #   - airflow/dev.env
+    volumes:
+      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      airflow_webserver:
+        condition: service_healthy
+    command: >
+      sh -c "/opt/airflow/airflow_venv/bin/airflow scheduler"
+  
+  airflow_worker:
+    build: airflow
+    healthcheck:
+      test: "CMD-SHELL"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # env_file:
+    #   - airflow/dev.env
+    volumes:
+      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      airflow_webserver:
+        condition: service_healthy
+    command: >
+      sh -c "/opt/airflow/airflow_venv/bin/airflow celery worker -v"
+  
+  airflow_flower:
+    build: airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5555"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # env_file:
+    #   - airflow/dev.env
+    volumes:
+      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      airflow_webserver:
+        condition: service_healthy
+    command: >
+      sh -c "/opt/airflow/airflow_venv/bin/airflow celery flower"
+
+# volumes:
+#   postgres-db-volume

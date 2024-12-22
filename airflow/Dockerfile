@@ -26,6 +26,7 @@ ENV PYTHONPATH=${AIRFLOW_HOME}
 RUN mkdir -pv ${AIRFLOW_HOME} && \
 mkdir -pv ${AIRFLOW_HOME}/dags && \
 mkdir -pv ${AIRFLOW_HOME}/logs && \
+mkdir -pv ${AIRFLOW_HOME}/files && \
 mkdir -pv ${AIRFLOW_HOME}/config && \
 mkdir -pv ${AIRFLOW_HOME}/plugins && \
 mkdir -pv ${AIRFLOW_HOME}/resources && \
@@ -34,6 +35,7 @@ chmod -R 777 ${AIRFLOW_HOME}
 COPY ./dags /opt/airflow/dags
 COPY ./airflow.cfg /opt/airflow/airflow.cfg
 COPY ./requirements.txt /opt/airflow/requirements.txt
+COPY ./movies_metadata.csv /opt/airflow/flat_files/movies_metadata.csv
 
 RUN python3.11 -m venv /opt/airflow/airflow_venv
 RUN /opt/airflow/airflow_venv/bin/pip install --upgrade pip

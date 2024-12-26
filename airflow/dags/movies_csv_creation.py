@@ -128,7 +128,7 @@ def dag_declaration():
             dict[str, str | float | None | dict[str, int | str],],
             list[dict[str, str | int]],
         ],
-        data_category: str
+        data_category: str,
     ) -> None:
         context = get_current_context()
         context["entity_index"] = data_category
@@ -139,27 +139,31 @@ def dag_declaration():
         for data in data_list:
             try:
                 for category in data[data_category]:
-                    data = category["name"].lower().replace('"', '')
+                    data = category["name"].lower().replace('"', "")
 
                     if data_cleaning(data, data_category):
                         csv_set.add(data)
             except Exception as e:
-                logging.warning(f"Error encountered with this data point: {category}: {e}")
-        
+                logging.warning(
+                    f"Error encountered with this data point: {category}: {e}"
+                )
+
         for val in csv_set:
             csv_list.append([val])
 
-        with open(f"/opt/airflow/flat_files/{data_category}.csv", "w") as f:  
-            header = ['name']
+        with open(f"/opt/airflow/flat_files/{data_category}.csv", "w") as f:
+            header = ["name"]
             w = csv.writer(f)
-            w.writerow(header)        
-            w.writerows(csv_list)         
+            w.writerow(header)
+            w.writerows(csv_list)
 
     @task()
-    def create_movies_csv_file(data_list: list[
+    def create_movies_csv_file(
+        data_list: list[
             dict[str, str | float | None | dict[str, int | str],],
             list[dict[str, str | int]],
-        ]) -> None:
+        ]
+    ) -> None:
         pass
 
     def data_cleaning(data: str, category: str) -> bool:
@@ -170,16 +174,18 @@ def dag_declaration():
                 if exclusion in data:
                     return False
         elif category == "production_companies":
-            data = data.replace('"', '')
+            data = data.replace('"', "")
             if ", the" in data:
                 data = data.replace(", the", "")
                 data = f"the {data}"
-        
+
         return True
 
     def main() -> None:
         parsed_list_data = parse_data_to_dicts()
-        create_csv_files.partial(data_list=parsed_list_data).expand(data_category=["genres", "production_companies", "spoken_languages"])
+        create_csv_files.partial(data_list=parsed_list_data).expand(
+            data_category=["genres", "production_companies", "spoken_languages"]
+        )
         create_movies_csv_file(parsed_list_data)
 
     main()

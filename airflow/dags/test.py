@@ -133,19 +133,24 @@ def dag_declaration():
         context = get_current_context()
         context["entity_index"] = data_category
 
+        csv_set = set()
         csv_list = []
 
         for data in data_list:
             try:
                 for category in data[data_category]:
-                    csv_list.append(category["name"])
+                    data = category["name"].lower().replace('"', '')
+
+                    if data_cleaning(data, data_category):
+                        csv_set.add(data)
             except Exception as e:
                 logging.warning(f"Error encountered with this data point: {category}: {e}")
+        
+        for val in csv_set:
+            csv_list.append([val])
 
         with open(f"/opt/airflow/flat_files/{data_category}.csv", "w") as f:  
             header = ['name']
-            
-            # writing data row-wise into the csv file
             w = csv.writer(f)
             w.writerow(header)        
             w.writerows(csv_list)         
@@ -157,9 +162,24 @@ def dag_declaration():
         ]) -> None:
         pass
 
+    def data_cleaning(data: str, category: str) -> bool:
+        genre_exclude_list = ["production", "entertainment", "production"]
+
+        if category == "genres":
+            for exclusion in genre_exclude_list:
+                if exclusion in data:
+                    return False
+        elif category == "production_companies":
+            data = data.replace('"', '')
+            if ", the" in data:
+                data = data.replace(", the", "")
+                data = f"the {data}"
+        
+        return True
+
     def main() -> None:
         parsed_list_data = parse_data_to_dicts()
-        create_csv_files.partial(data_list=parsed_list_data).expand(data_category=["genres", "production_companies", "languages"])
+        create_csv_files.partial(data_list=parsed_list_data).expand(data_category=["genres", "production_companies", "spoken_languages"])
         create_movies_csv_file(parsed_list_data)
 
     main()

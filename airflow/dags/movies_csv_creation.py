@@ -28,42 +28,6 @@ def dag_declaration():
     import ast
     import logging
 
-    # # HEADERS
-    # list_of_stuff = [
-    # 'adult': bool,
-    # 'belongs_to_collection': dict,
-    # 'budget': int,
-    # 'genres': list[dict[str, str]],
-    # 'homepage': str,
-    # 'id': int,
-    # 'imdb_id': str, # jumble of letters and numbers UID
-    # 'original_language': str, # abbreviated country code
-    # 'original_title',
-    # 'overview',
-    # 'popularity',
-    # 'poster_path',
-    # 'production_companies',
-    # 'production_countries',
-    # 'release_date',
-    # 'revenue',
-    # 'runtime',
-    # 'spoken_languages',
-    # 'status',
-    # 'tagline',
-    # 'title',
-    # 'video',
-    # 'vote_average',
-    # 'vote_count',
-    # ]
-
-    # # MOVIES TABLE
-    # """
-    # I'll need revenue for 3.1 (3rd highest revenue)
-    # Will need movies that didn't recoup budget (revenue < budget, top 3 ordered by imdb_id)
-    # Will need the top 3 average revenue per genre from highest to lowest average
-    # How many movies are in more than one language?
-    # For each month (release date), which genre (genre) had the highest proportion of releases? 1 per calendar month, if a tie, list all the genres that tied
-    # """
     sql_column_map = {
         "genres": "genre", 
         "production_companies": "production_company", 
@@ -158,13 +122,60 @@ def dag_declaration():
             list[dict[str, str | int]],
         ]
     ) -> None:
-        pass
-        # with open(f"/opt/airflow/flat_files/movie_table.csv", "w") as f:
-        #     header = ["name"]
-        #     w = csv.writer(f)
-        #     w.writerow(header)
-        #     w.writerows(csv_list)
         
+        movies_csv_columns = [
+            "budget",
+            "imdb_id",
+            "revenue",
+        ]
+        # for data in data_list:
+        #     try:
+        #         for category in data[data_category]:
+        #             data = category["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
+
+        #             if data_cleaning(data, data_category):
+        #                 csv_set.add(data)
+        #     except Exception as e:
+        #         logging.warning(
+        #             f"Error encountered with this data point: {category}: {e}"
+        #         )
+
+    # # HEADERS
+    # list_of_stuff = [
+    # 'adult': bool,
+    # 'belongs_to_collection': dict,
+    # 'budget': int,
+    # 'genres': list[dict[str, str]],
+    # 'homepage': str,
+    # 'id': int,
+    # 'imdb_id': str, # jumble of letters and numbers UID
+    # 'original_language': str, # abbreviated country code
+    # 'original_title',
+    # 'overview',
+    # 'popularity',
+    # 'poster_path',
+    # 'production_companies',
+    # 'production_countries',
+    # 'release_date',
+    # 'revenue',
+    # 'runtime',
+    # 'spoken_languages',
+    # 'status',
+    # 'tagline',
+    # 'title',
+    # 'video',
+    # 'vote_average',
+    # 'vote_count',
+    # ]
+
+    # # MOVIES TABLE
+    # """
+    # I'll need revenue for 3.1 (3rd highest revenue)
+    # Will need movies that didn't recoup budget (revenue < budget, top 3 ordered by imdb_id)
+    # Will need the top 3 average revenue per genre from highest to lowest average
+    # How many movies are in more than one language?
+    # For each month (release date), which genre (genre) had the highest proportion of releases? 1 per calendar month, if a tie, list all the genres that tied
+    # """  
 
     def data_cleaning(data: str, category: str) -> bool:
         genre_exclude_list = ["filmworks", "entertainment", "production"]

@@ -7,13 +7,33 @@ services:
       retries: 5
       start_period: 5s
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_INITDB_ARGS=--auth=md5
     # volumes:
     #   -postgres-db-volume:/var/lib/postgreql/data
     ports:
       - 5432:5432
+  
+  data-postgres:
+    image: postgres:13
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "admin"]
+      interval: 30s
+      retries: 5
+      start_period: 5s
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=data
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_INITDB_ARGS=--auth=md5
+    # volumes:
+    #   -postgres-db-volume:/var/lib/postgreql/data
+    ports:
+      - 5433:5432
   
   redis:
     image: redis:latest

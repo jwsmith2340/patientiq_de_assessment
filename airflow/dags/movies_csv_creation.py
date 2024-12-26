@@ -15,17 +15,17 @@ default_args = {
 
 
 @dag(
-    dag_id="test",
+    dag_id="movies_csv_creator",
     start_date=datetime(2024, 12, 21),
     default_args=default_args,
     schedule=None,
     catchup=False,
-    tags=["test"],
+    tags=["csv", "movies"],
 )
 def dag_declaration():
+    import re
     import csv
     import ast
-    import json
     import logging
 
     # # HEADERS
@@ -64,19 +64,11 @@ def dag_declaration():
     # How many movies are in more than one language?
     # For each month (release date), which genre (genre) had the highest proportion of releases? 1 per calendar month, if a tie, list all the genres that tied
     # """
-
-    # # GENRES TABLE
-    # id: int = "primary_key auto increment"
-    # genre_name: str = "varchar"
-
-    # # PRODUCTION COMPANY TABLE
-    # id: int = "primary_key auto increment"
-    # production_companies: str = "varchar"
-    # procution_countries: list[dict[str, str]] = Probably going to use a join table here? not sure, think about it, might not be necessary, will revisit"
-
-    # # LANGUAGES TABLE
-    # id: int = "primary_key auto_increment"
-    # language: str = "varchar" # This should just be the language at the high level
+    sql_column_map = {
+        "genres": "genre", 
+        "production_companies": "production_company", 
+        "spoken_languages": "language",
+    }
 
     @task()
     def parse_data_to_dicts() -> list[
@@ -139,7 +131,7 @@ def dag_declaration():
         for data in data_list:
             try:
                 for category in data[data_category]:
-                    data = category["name"].lower().replace('"', "")
+                    data = category["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
 
                     if data_cleaning(data, data_category):
                         csv_set.add(data)
@@ -148,11 +140,13 @@ def dag_declaration():
                     f"Error encountered with this data point: {category}: {e}"
                 )
 
+        id_count = 1
         for val in csv_set:
-            csv_list.append([val])
+            csv_list.append([id_count, val])
+            id_count += 1
 
         with open(f"/opt/airflow/flat_files/{data_category}.csv", "w") as f:
-            header = ["name"]
+            header = ["id", sql_column_map[data_category]]
             w = csv.writer(f)
             w.writerow(header)
             w.writerows(csv_list)
@@ -165,19 +159,31 @@ def dag_declaration():
         ]
     ) -> None:
         pass
+        # with open(f"/opt/airflow/flat_files/movie_table.csv", "w") as f:
+        #     header = ["name"]
+        #     w = csv.writer(f)
+        #     w.writerow(header)
+        #     w.writerows(csv_list)
+        
 
     def data_cleaning(data: str, category: str) -> bool:
-        genre_exclude_list = ["production", "entertainment", "production"]
+        genre_exclude_list = ["filmworks", "entertainment", "production"]
+
+        data = data.replace(',', '')
+        data = re.sub(",", "", data)
 
         if category == "genres":
             for exclusion in genre_exclude_list:
                 if exclusion in data:
                     return False
         elif category == "production_companies":
-            data = data.replace('"', "")
+            data = data.replace('"', '')
             if ", the" in data:
-                data = data.replace(", the", "")
+                data = data.replace(', the', '')
                 data = f"the {data}"
+        elif category == "spoken_languages":
+            if "???" in data or not data:
+                return False
 
         return True
 

@@ -13,3 +13,11 @@ CREATE TABLE IF NOT EXISTS languages (
 	lang VARCHAR
 );
 
+CREATE TABLE IF NOT EXISTS movies (
+	id SERIAL PRIMARY KEY NOT NULL,
+	budget INT NOT NULL,
+    imdb_id VARCHAR NOT NULL,
+    revenue INT NOT NULL,
+    release_date DATE NOT NULL,
+    title VARCHAR NOT NULL
+);

@@ -127,18 +127,36 @@ def dag_declaration():
             "budget",
             "imdb_id",
             "revenue",
+            "release_date",
+            "title",
         ]
-        # for data in data_list:
-        #     try:
-        #         for category in data[data_category]:
-        #             data = category["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
+        count = 0
+        csv_list = []
 
-        #             if data_cleaning(data, data_category):
-        #                 csv_set.add(data)
-        #     except Exception as e:
-        #         logging.warning(
-        #             f"Error encountered with this data point: {category}: {e}"
-        #         )
+        for data in data_list[:5]:
+            count += 1
+            csv_data_list = [count]
+
+            try:
+                for category in movies_csv_columns:
+                    if category in ["revenue", "budget"]:
+                        data[category] = int(data[category])
+                    csv_data_list.append(data[category])
+
+            except Exception as e:
+                logging.warning(
+                    f"Error encountered with this data point: {category}: {e}"
+                )
+            
+            csv_list.append(csv_data_list)
+        
+        with open(f"/opt/airflow/flat_files/movies.csv", "w") as f:
+            header = ["id"]
+            header.extend(movies_csv_columns)
+
+            w = csv.writer(f)
+            w.writerow(header)
+            w.writerows(csv_list)
 
     # # HEADERS
     # list_of_stuff = [
@@ -174,6 +192,7 @@ def dag_declaration():
     # Will need movies that didn't recoup budget (revenue < budget, top 3 ordered by imdb_id)
     # Will need the top 3 average revenue per genre from highest to lowest average
     # How many movies are in more than one language?
+    #       Language table, movies table, n:m table query
     # For each month (release date), which genre (genre) had the highest proportion of releases? 1 per calendar month, if a tie, list all the genres that tied
     # """  
 

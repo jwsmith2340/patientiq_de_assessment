@@ -22,13 +22,10 @@ default_args = {
     catchup=False,
     tags=["csv", "insert", "db"],
 )
-def dag_declaration():
-    import csv
-    import ast
-    import logging
+def insert_csv_into_db_dag():
     import psycopg2
 
-    from common.utils import db_connection, airflow_connection
+    from common.utils import db_connection
 
     @task()
     def connection():
@@ -40,21 +37,26 @@ def dag_declaration():
             cursor.execute(open("/opt/airflow/dags/sql_files/table_creation.sql", "r").read())
             connection.commit()
 
-            with open("/opt/airflow/flat_files/genres.csv", 'r') as f:
+            with open("/opt/airflow/flat_files/genres.csv", "r") as f:
                 # Skip the headers
                 next(f)
-                cursor.copy_from(f, 'genres', sep=',', null='NULL', columns=('id', 'genre'))
+                cursor.copy_from(f, "genres", sep=",", null="NULL", columns=("id", "genre"))
             
-            with open("/opt/airflow/flat_files/production_companies.csv", 'r') as f:
+            with open("/opt/airflow/flat_files/production_companies.csv", "r") as f:
                 # Skip the headers
                 next(f)
-                cursor.copy_from(f, 'production_companies', sep=',', null='NULL', columns=('id', 'prod_comp'))
+                cursor.copy_from(f, "production_companies", sep=",", null="NULL", columns=("id", "prod_comp"))
             
-            with open("/opt/airflow/flat_files/spoken_languages.csv", 'r') as f:
+            with open("/opt/airflow/flat_files/spoken_languages.csv", "r") as f:
                 # Skip the headers
                 next(f)
-                cursor.copy_from(f, 'languages', sep=',', null='NULL', columns=('id', 'lang'))
-            
+                cursor.copy_from(f, "languages", sep=",", null="NULL", columns=("id", "lang"))
+           
+            with open("/opt/airflow/flat_files/movies.csv", "r") as f:
+                # Skip the headers
+                next(f)
+                cursor.copy_from(f, "movies", sep=",", null="NULL", columns=("id", "budget", "imdb_id", "revenue", "release_date", "title"))
+
             # Commit the transaction
             connection.commit()
             print("Data inserted successfully.")
@@ -75,4 +77,4 @@ def dag_declaration():
     main()
 
 
-dag_declaration()
+insert_csv_into_db_dag()

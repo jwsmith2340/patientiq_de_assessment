@@ -34,33 +34,72 @@ def insert_csv_into_db_dag():
             cursor = connection.cursor()
 
             # Create tables if they don't exist
-            cursor.execute(open("/opt/airflow/dags/sql_files/table_creation.sql", "r").read())
-            connection.commit()
+            # cursor.execute(
+            #     open("/opt/airflow/dags/sql_files/table_creation.sql", "r").read()
+            # )
+            # connection.commit()
 
-            with open("/opt/airflow/flat_files/genres.csv", "r") as f:
-                # Skip the headers
-                next(f)
-                cursor.copy_from(f, "genres", sep=",", null="NULL", columns=("id", "genre"))
+            # with open("/opt/airflow/flat_files/genres.csv", "r") as f:
+            #     # Skip the headers
+            #     next(f)
+            #     cursor.copy_from(
+            #         f, "genres", sep=",", null="NULL", columns=("id", "genre")
+            #     )
+
+            # with open("/opt/airflow/flat_files/production_companies.csv", "r") as f:
+            #     # Skip the headers
+            #     next(f)
+            #     cursor.copy_from(
+            #         f,
+            #         "production_companies",
+            #         sep=",",
+            #         null="NULL",
+            #         columns=("id", "prod_comp"),
+            #     )
+
+            # with open("/opt/airflow/flat_files/spoken_languages.csv", "r") as f:
+            #     # Skip the headers
+            #     next(f)
+            #     cursor.copy_from(
+            #         f, "languages", sep=",", null="NULL", columns=("id", "lang")
+            #     )
+
+            # with open("/opt/airflow/flat_files/movies.csv", "r") as f:
+            #     # Skip the headers
+            #     next(f)
+            #     cursor.copy_from(
+            #         f,
+            #         "movies",
+            #         sep=",",
+            #         null="NULL",
+            #         columns=(
+            #             "id",
+            #             "budget",
+            #             "imdb_id",
+            #             "revenue",
+            #             "release_date",
+            #             "title",
+            #         ),
+            #     )
             
-            with open("/opt/airflow/flat_files/production_companies.csv", "r") as f:
+            with open("/opt/airflow/flat_files/movie_genre_nm.csv", "r") as f:
                 # Skip the headers
                 next(f)
-                cursor.copy_from(f, "production_companies", sep=",", null="NULL", columns=("id", "prod_comp"))
-            
-            with open("/opt/airflow/flat_files/spoken_languages.csv", "r") as f:
+                cursor.copy_from(
+                    f, "movie_genre_nm", sep=",", null="NULL", columns=("movie_id", "genre_id")
+                )
+
+            with open("/opt/airflow/flat_files/movie_language_nm.csv", "r") as f:
                 # Skip the headers
                 next(f)
-                cursor.copy_from(f, "languages", sep=",", null="NULL", columns=("id", "lang"))
-           
-            with open("/opt/airflow/flat_files/movies.csv", "r") as f:
-                # Skip the headers
-                next(f)
-                cursor.copy_from(f, "movies", sep=",", null="NULL", columns=("id", "budget", "imdb_id", "revenue", "release_date", "title"))
+                cursor.copy_from(
+                    f, "movie_language_nm", sep=",", null="NULL", columns=("movie_id", "language_id")
+                )
 
             # Commit the transaction
             connection.commit()
             print("Data inserted successfully.")
-            
+
         except Exception as e:
             print(f"Error: {e}")
             connection.rollback()  # Rollback in case of an error

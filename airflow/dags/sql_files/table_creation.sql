@@ -21,3 +21,13 @@ CREATE TABLE IF NOT EXISTS movies (
     release_date DATE NOT NULL,
     title VARCHAR NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS movie_genre_nm (
+	movie_id INT NOT NULL REFERENCES movies,
+	genre_id INT NOT NULL REFERENCES genres
+);
+
+CREATE TABLE IF NOT EXISTS movie_language_nm (
+	movie_id INT NOT NULL REFERENCES movies,
+	language_id INT NOT NULL REFERENCES languages
+);

@@ -4,6 +4,7 @@ from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.operators.python import get_current_context
+from airflow.utils.trigger_rule import TriggerRule
 
 default_args = {
     "owner": "Data Engineering",
@@ -92,7 +93,7 @@ def dag_declaration():
         csv_set = set()
         csv_list = []
 
-        for data in data_list:
+        for data in data_list[:5]:
             try:
                 for category in data[data_category]:
                     data = category["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
@@ -217,12 +218,87 @@ def dag_declaration():
 
         return True
 
+    @task(trigger_rule=TriggerRule.ALL_SUCCESS)
+    def create_n_m_csv_files(data_list: list[
+            dict[str, str | float | None | dict[str, int | str],],
+            list[dict[str, str | int]]]) -> None:
+        # Will need genres and languages n:m tables created here
+        
+        genre_dict = {}
+        movie_dict = {}
+        language_dict = {}
+        movie_genre_nm_csv_list = []
+        movie_language_nm_csv_list = []
+
+        with open(
+            "/opt/airflow/flat_files/genres.csv", "r", encoding="utf-8"
+        ) as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                genre_dict[row["genre"]] = row["id"]
+       
+        with open(
+            "/opt/airflow/flat_files/movies.csv", "r", encoding="utf-8"
+        ) as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                movie_dict[row["title"]] = row["id"]
+        
+        with open(
+            "/opt/airflow/flat_files/spoken_languages.csv", "r", encoding="utf-8"
+        ) as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                language_dict[row["language"]] = row["id"]
+
+        for data in data_list[:5]:
+            title = data["title"]
+            try:
+                for genre in data["genres"]:
+                    genre_name = genre["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
+
+                    movie_genre_nm_csv_list.append([movie_dict[title], genre_dict[genre_name]])
+            except Exception as e:
+                logging.warning(
+                    f"Error encountered with this data point: {data}: {e}"
+                )
+            try:
+                for language in data["spoken_languages"]:
+                    language_name = language["name"].lower().replace('"', "").replace(",", "").replace("\\", "")
+
+                    movie_language_nm_csv_list.append([movie_dict[title], language_dict[language_name]])
+            except Exception as e:
+                logging.warning(f"Error with languages: {e}")
+
+        print(genre_dict)
+        print(movie_dict)
+        print(language_dict)
+        print(movie_genre_nm_csv_list)
+        print(movie_language_nm_csv_list)
+
+        with open(f"/opt/airflow/flat_files/movie_genre_nm.csv", "w") as f:
+            header = ["movie_id", "genre_id"]
+            w = csv.writer(f)
+            w.writerow(header)
+            w.writerows(movie_genre_nm_csv_list)
+        
+        with open(f"/opt/airflow/flat_files/movie_language_nm.csv", "w") as f:
+            header = ["movie_id", "language_id"]
+            w = csv.writer(f)
+            w.writerow(header)
+            w.writerows(movie_language_nm_csv_list)
+        
+
     def main() -> None:
         parsed_list_data = parse_data_to_dicts()
         create_csv_files.partial(data_list=parsed_list_data).expand(
             data_category=["genres", "production_companies", "spoken_languages"]
         )
         create_movies_csv_file(parsed_list_data)
+        create_n_m_csv_files(parsed_list_data)
 
     main()
 

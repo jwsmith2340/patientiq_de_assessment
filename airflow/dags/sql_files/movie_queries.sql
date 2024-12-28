@@ -1,5 +1,5 @@
 -- Third highest movie by revenue
-SELECT * 
+SELECT title
 FROM movies 
 ORDER BY revenue DESC 
 LIMIT 1 

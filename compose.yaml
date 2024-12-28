@@ -57,8 +57,8 @@ services:
       start_period: 30s
     # env_file:
     #   - airflow/dev.env
-    volumes:
-      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    # volumes:
+    #   - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
     #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
     ports:
       - "8080:8080"
@@ -84,8 +84,8 @@ services:
       start_period: 30s
     # env_file:
     #   - airflow/dev.env
-    volumes:
-      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    # volumes:
+    #   - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
     #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
     depends_on:
       redis:
@@ -107,8 +107,8 @@ services:
       start_period: 30s
     # env_file:
     #   - airflow/dev.env
-    volumes:
-      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    # volumes:
+    #   - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
     #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
     depends_on:
       redis:
@@ -130,8 +130,8 @@ services:
       start_period: 30s
     # env_file:
     #   - airflow/dev.env
-    volumes:
-      - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
+    # volumes:
+    #   - C:\Users\13042\Desktop\code\patientiq_de_assessment\airflow\dags:/opt/airflow/dags
     #   - C:\Users\13042\Desktop\code\airflow_dags\config:/opt/airflow/config
     depends_on:
       redis:

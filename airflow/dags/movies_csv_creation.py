@@ -18,7 +18,8 @@ default_args = {
     doc_md=__doc__,
     tags=["csv", "movies"],
 )
-def dag_declaration():
+def movie_csv_creation_dag():
+    """Creates movie related CSV files for upload to a SQL DB"""
     import re
     import csv
     import ast
@@ -357,4 +358,4 @@ def dag_declaration():
     main()
 
 
-dag_declaration()
+movie_csv_creation_dag()

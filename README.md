@@ -13,9 +13,10 @@ Expected Deliverables:
 1. A script to load files from #1 (above) into a database. **[DB Upload DAG](https://github.com/jwsmith2340/patientiq_de_assessment/blob/master/airflow/dags/insert_csv_to_db.py)**
 
 ## Task 3
-Questions:
+Expected Deliverables:
+1. One SQL statement per question above, for a total of 5 statements. [SQL Queries](https://github.com/jwsmith2340/patientiq_de_assessment/blob/master/airflow/dags/sql_files/movie_queries.sql)
 
-All SQL Queries can be found here: [SQL File](https://github.com/jwsmith2340/patientiq_de_assessment/blob/master/airflow/dags/sql_files/movie_queries.sql)
+2. Answers to each of the above five questions:
 
 Which movie(s) had the 3rd highest revenue?
 - Titanic

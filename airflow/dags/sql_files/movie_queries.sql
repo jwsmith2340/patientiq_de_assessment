@@ -7,10 +7,10 @@ OFFSET 2;
 -- Titanic
 
 -- Will need movies that didn't recoup budget (revenue < budget, top 3 ordered by imdb_id)
-SELECT title 
+SELECT title
 FROM movies 
-WHERE revenue < budget 
-ORDER BY imdb_id 
+WHERE (revenue < budget) AND revenue > 0
+ORDER BY imdb_id
 LIMIT 3;
 -- Foolish Wives, The Merry Widow, and Metropolis
 
@@ -74,6 +74,7 @@ WITH genre_counts_by_month AS (
 	FROM movie_genre_nm nm
 	INNER JOIN movies m ON nm.movie_id = m.id
 	INNER JOIN genres g ON nm.genre_id = g.id
+    WHERE m.release_date <> '1901-01-01'
 	GROUP BY release_month, g.genre
 ),
 total_releases_by_month AS (

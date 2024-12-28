@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS languages (
 
 CREATE TABLE IF NOT EXISTS movies (
 	id SERIAL PRIMARY KEY NOT NULL,
-	budget INT NOT NULL,
+	budget BIGINT NOT NULL,
     imdb_id VARCHAR NOT NULL,
-    revenue INT NOT NULL,
-    release_date DATE NOT NULL,
+    revenue BIGINT NOT NULL,
+    release_date DATE NULL DEFAULT NULL,
     title VARCHAR NOT NULL
 );
 

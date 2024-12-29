@@ -1,7 +1,7 @@
 # PatientIQ Data Engineer Assessment
 
 ## Overview
-This repo contains the PatientIQ Data Engineer assessment, including all requested deliverables. 
+This repo contains the PatientIQ Data Engineer assessment completed by James Smith, including all requested deliverables. 
 
 ## Task 1
 Expected Deliverables:
